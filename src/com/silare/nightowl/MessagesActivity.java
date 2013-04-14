@@ -56,6 +56,8 @@ public class MessagesActivity extends FragmentActivity
 	private void initializeDateSpinner()
 	{
 		dateSpinner = (TextView) findViewById(R.id.date_spinner);
+		dateSpinner.setText(SMSSendReceiver.calendarDateString(Calendar
+				.getInstance()));
 		
 		View.OnTouchListener dateSpinnerOnTouch = new View.OnTouchListener()
 		{
@@ -92,6 +94,8 @@ public class MessagesActivity extends FragmentActivity
 	private void initializeTimeSpinner()
 	{
 		timeSpinner = (TextView) findViewById(R.id.time_spinner);
+		timeSpinner.setText(SMSSendReceiver.calendarTimeString(Calendar
+				.getInstance()));
 		
 		View.OnTouchListener timeSpinnerOnTouch = new View.OnTouchListener()
 		{

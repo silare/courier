@@ -38,22 +38,23 @@ public class SMSSendReceiver extends BroadcastReceiver
 	{
 		final String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 				"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-		final String[] DAYS_OF_WEEK = { "Sun", "Mon", "Tue", "Wed", "Thu",
-				"Fri", "Sat" };
+		final String[] DAYS_OF_WEEK = { null, "Sun", "Mon", "Tue", "Wed",
+				"Thu", "Fri", "Sat" };
 		
-		int year = calendar.get(Calendar.YEAR);
-		int month = calendar.get(Calendar.MONTH);
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		return DAYS_OF_WEEK[dayOfWeek] + ", " + MONTHS[month] + " " + day
-				+ ", " + year;
+		String year = "" + calendar.get(Calendar.YEAR);
+		String month = MONTHS[calendar.get(Calendar.MONTH)];
+		String day = "" + calendar.get(Calendar.DAY_OF_MONTH);
+		String dayOfWeek = DAYS_OF_WEEK[calendar.get(Calendar.DAY_OF_WEEK)];
+		return dayOfWeek + ", " + month + " " + day + ", " + year;
 	}
 	
 	
 	public static String calendarTimeString(Calendar calendar)
 	{
-		int hour = calendar.get(Calendar.HOUR);
-		int minute = calendar.get(Calendar.MINUTE);
+		String hour = "" + calendar.get(Calendar.HOUR);
+		int currentMinute = calendar.get(Calendar.MINUTE);
+		String prefix = (currentMinute < 10) ? "0" : "";
+		String minute = prefix + currentMinute;
 		String meridiem = (calendar.get(Calendar.HOUR_OF_DAY) < 12) ? "am"
 				: "pm";
 		return hour + ":" + minute + meridiem;
