@@ -26,6 +26,7 @@ public class MessagesActivity extends FragmentActivity
 	private Button sendSMS;
 	private TextView dateSpinner;
 	private TextView timeSpinner;
+	private Calendar sendTime;
 	
 	
 	@Override
@@ -33,6 +34,16 @@ public class MessagesActivity extends FragmentActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_messages);
+		
+		if (savedInstanceState != null
+				&& savedInstanceState.containsKey("sendTime"))
+		{
+			sendTime = (Calendar) savedInstanceState.get("sendTime");
+		}
+		else
+		{
+			sendTime = Calendar.getInstance();
+		}
 		
 		phoneNumber = (EditText) findViewById(R.id.phone_number);
 		message = (EditText) findViewById(R.id.message);
@@ -56,8 +67,7 @@ public class MessagesActivity extends FragmentActivity
 	private void initializeDateSpinner()
 	{
 		dateSpinner = (TextView) findViewById(R.id.date_spinner);
-		dateSpinner.setText(SMSSendReceiver.calendarDateString(Calendar
-				.getInstance()));
+		dateSpinner.setText(SMSSendReceiver.calendarDateString(sendTime));
 		
 		View.OnTouchListener dateSpinnerOnTouch = new View.OnTouchListener()
 		{
@@ -94,8 +104,7 @@ public class MessagesActivity extends FragmentActivity
 	private void initializeTimeSpinner()
 	{
 		timeSpinner = (TextView) findViewById(R.id.time_spinner);
-		timeSpinner.setText(SMSSendReceiver.calendarTimeString(Calendar
-				.getInstance()));
+		timeSpinner.setText(SMSSendReceiver.calendarTimeString(sendTime));
 		
 		View.OnTouchListener timeSpinnerOnTouch = new View.OnTouchListener()
 		{
@@ -135,6 +144,14 @@ public class MessagesActivity extends FragmentActivity
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.messages, menu);
 		return true;
+	}
+	
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState)
+	{
+		outState.putSerializable("sendTime", sendTime);
+		super.onSaveInstanceState(outState);
 	}
 	
 	
