@@ -158,9 +158,10 @@ public class MessagesActivity extends FragmentActivity
 	public void sendSMS(String phoneNumber, String message)
 	{
 		AlarmManager alarmMgr = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-		Calendar time = Calendar.getInstance();
-		time.setTimeInMillis(System.currentTimeMillis());
-		time.add(Calendar.SECOND, 10);
+		Calendar time = sendTime;
+		// Calendar time = Calendar.getInstance();
+		// time.setTimeInMillis(System.currentTimeMillis());
+		// time.add(Calendar.SECOND, 10);
 		Intent intent = new Intent(null, Uri.parse("timer:" + time
 				+ phoneNumber + message), this, SMSSendReceiver.class);
 		
@@ -175,22 +176,32 @@ public class MessagesActivity extends FragmentActivity
 				pendingIntent);
 		Log.d("SendSMS",
 				"[" + SMSSendReceiver.calendarDateString(time) + " :: "
-						+ SMSSendReceiver.calendarTimeString(time)
-						+ time.get(Calendar.SECOND) + "]" + " " + phoneNumber
+						+ SMSSendReceiver.calendarTimeString(time) + " ("
+						+ time.get(Calendar.SECOND) + ")]" + " " + phoneNumber
 						+ " << \"" + message + "\"");
 	}
 	
 	
 	public void showDatePickerDialog(View v)
 	{
-		DialogFragment newFragment = new DatePickerFragment();
+		DatePickerFragment newFragment = new DatePickerFragment();
+		newFragment.setMessagesActivity(this);
+		newFragment.setCalendar(sendTime);
 		newFragment.show(getFragmentManager(), "Date");
 	}
 	
 	
 	public void showTimePickerDialog(View v)
 	{
-		DialogFragment newFragment = new TimePickerFragment();
+		TimePickerFragment newFragment = new TimePickerFragment();
+		newFragment.setMessagesActivity(this);
+		newFragment.setCalendar(sendTime);
 		newFragment.show(getFragmentManager(), "Time");
+	}
+	
+	
+	public void setSendTime(Calendar sendTime)
+	{
+		this.sendTime = sendTime;
 	}
 }

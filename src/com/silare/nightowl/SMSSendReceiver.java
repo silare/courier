@@ -22,12 +22,12 @@ public class SMSSendReceiver extends BroadcastReceiver
 		Toast.makeText(
 				context,
 				"Sending SMS message... " + "[" + calendarDateString(time)
-						+ " :: " + calendarTimeString(time)
-						+ time.get(Calendar.SECOND) + "]" + " " + phoneNumber
+						+ " :: " + calendarTimeString(time) + " ("
+						+ time.get(Calendar.SECOND) + ")]" + " " + phoneNumber
 						+ " << \"" + message + "\"", Toast.LENGTH_SHORT).show();
 		Log.d("SENDING MESSAGE", "[" + calendarDateString(time) + " :: "
-				+ calendarTimeString(time) + time.get(Calendar.SECOND) + "]"
-				+ " " + phoneNumber + " << \"" + message + "\"");
+				+ calendarTimeString(time) + " (" + time.get(Calendar.SECOND)
+				+ ")]" + " " + phoneNumber + " << \"" + message + "\"");
 		
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(phoneNumber, null, message, null, null);
