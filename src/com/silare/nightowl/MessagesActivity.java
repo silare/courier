@@ -45,7 +45,20 @@ public class MessagesActivity extends Activity
 		if ((savedInstanceState != null
 			&& savedInstanceState.containsKey("sendTime")))
 		{
-			sendTime = (Calendar) savedInstanceState.get("sendTime");
+			Calendar savedTime = (Calendar) savedInstanceState.get("sendTime");
+			Calendar currentTime = Calendar.getInstance();
+
+			// If the saved time is before the current time, then just use the
+			// current time as the send time anyway; no point in using this app
+			// to send messages to the past.
+			if (savedTime.compareTo(currentTime) < 0)
+			{
+				sendTime = currentTime;
+			}
+			else
+			{
+				sendTime = savedTime;
+			}
 		}
 		else
 		{
