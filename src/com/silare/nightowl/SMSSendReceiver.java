@@ -11,6 +11,13 @@ import android.widget.Toast;
 
 public class SMSSendReceiver extends BroadcastReceiver
 {
+	/**
+	 * Sends the SMS message when the SMSSendReceiver receives an Intent
+	 * broadcast, at the date and time specified by the user.
+	 *
+	 * @param context The Content in which the receiver is running.
+	 * @param intent  The Intent being received.
+	 */
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
@@ -18,45 +25,24 @@ public class SMSSendReceiver extends BroadcastReceiver
 		Calendar time = (Calendar) intent.getSerializableExtra("time");
 		String phoneNumber = intent.getStringExtra("phoneNumber");
 		String message = intent.getStringExtra("message");
-		
+
+		// Notify the user that the SMS message was sent at the correct time.
 		Toast.makeText(
-				context,
-				"Sending SMS message... " + "[" + calendarDateString(time)
-						+ " :: " + calendarTimeString(time) + " ("
-						+ time.get(Calendar.SECOND) + ")]" + " " + phoneNumber
-						+ " << \"" + message + "\"", Toast.LENGTH_SHORT).show();
-		Log.d("SENDING MESSAGE", "[" + calendarDateString(time) + " :: "
-				+ calendarTimeString(time) + " (" + time.get(Calendar.SECOND)
-				+ ")]" + " " + phoneNumber + " << \"" + message + "\"");
-		
+			context,
+			"Sending SMS message... " + "[" + DatePickerFragment.calendarDateString(
+				time)
+				+ " :: " + TimePickerFragment.calendarTimeString(time) + " ("
+				+ time.get(Calendar.SECOND) + ")]" + " " + phoneNumber
+				+ " << \"" + message + "\"", Toast.LENGTH_SHORT).show();
+		Log.d("SENDING MESSAGE", "[" + DatePickerFragment.calendarDateString(
+			time) + " :: "
+			+ TimePickerFragment.calendarTimeString(time) + " (" + time.get(
+			Calendar.SECOND)
+			+ ")]" + " " + phoneNumber + " << \"" + message + "\"");
+
+		// Send the SMS message.
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(phoneNumber, null, message, null, null);
 	}
-	
-	
-	public static String calendarDateString(Calendar calendar)
-	{
-		final String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-				"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-		final String[] DAYS_OF_WEEK = { null, "Sun", "Mon", "Tue", "Wed",
-				"Thu", "Fri", "Sat" };
-		
-		String year = "" + calendar.get(Calendar.YEAR);
-		String month = MONTHS[calendar.get(Calendar.MONTH)];
-		String day = "" + calendar.get(Calendar.DAY_OF_MONTH);
-		String dayOfWeek = DAYS_OF_WEEK[calendar.get(Calendar.DAY_OF_WEEK)];
-		return dayOfWeek + ", " + month + " " + day + ", " + year;
-	}
-	
-	
-	public static String calendarTimeString(Calendar calendar)
-	{
-		String hour = "" + calendar.get(Calendar.HOUR);
-		int currentMinute = calendar.get(Calendar.MINUTE);
-		String prefix = (currentMinute < 10) ? "0" : "";
-		String minute = prefix + currentMinute;
-		String meridiem = (calendar.get(Calendar.HOUR_OF_DAY) < 12) ? "am"
-				: "pm";
-		return hour + ":" + minute + meridiem;
-	}
+
 }
