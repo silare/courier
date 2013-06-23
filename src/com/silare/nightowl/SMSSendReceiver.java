@@ -10,8 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
-import android.util.Log;
-import android.widget.Toast;
 
 public class SMSSendReceiver extends BroadcastReceiver
 {
@@ -30,16 +28,19 @@ public class SMSSendReceiver extends BroadcastReceiver
 	{
 		// Put information in intent.
 		Calendar time = (Calendar) intent.getSerializableExtra("time");
+        String contactName = intent.getStringExtra("contactName");
 		String phoneNumber = intent.getStringExtra("phoneNumber");
 		String message = intent.getStringExtra("message");
 		
 		// Notify the user that the SMS message was sent at the correct time.
-		Bitmap bm = BitmapFactory.decodeResource(context.getResources(),
-				R.drawable.ic_notif_large);
+		Bitmap icNotifLarge = BitmapFactory.decodeResource(
+				context.getResources(),	R.drawable.ic_notif_large);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
-				context).setSmallIcon(R.drawable.notification).setLargeIcon(bm)
-				.setContentTitle("Sent to " + phoneNumber)
-				.setContentText(message);
+				context).setSmallIcon(R.drawable.ic_notif_small)
+				.setLargeIcon(icNotifLarge)
+				.setContentTitle("Sent to " + contactName)
+				.setContentText(message)
+				.setTicker("Sent to " + contactName + ": " + message);
 		NotificationManager manager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 		manager.notify(1, builder.build());

@@ -28,6 +28,7 @@ public class MessagesActivity extends Activity
 	private EditText message;
 	private Button sendSMS;
 	private Calendar sendTime;
+    private String contactName;
 
 	/**
 	 * Initializes the activity and its user interface when it starts.
@@ -77,7 +78,7 @@ public class MessagesActivity extends Activity
 			@Override
 			public void onClick(View v)
 			{
-				sendSMS(phoneNumber.getText().toString(), message.getText()
+				sendSMS(contactName, phoneNumber.getText().toString(), message.getText()
 					.toString());
 			}
 		});
@@ -105,6 +106,7 @@ public class MessagesActivity extends Activity
 			{
 				Cursor cursor = (Cursor)
 					adapterView.getItemAtPosition(i);
+                contactName = cursor.getString(cursor.getColumnIndexOrThrow(Phone.DISPLAY_NAME));
 				String number = cursor.getString(
 					cursor.getColumnIndexOrThrow(Phone.NUMBER));
 				phoneNumber.setText(number);
@@ -116,8 +118,8 @@ public class MessagesActivity extends Activity
 		// and phone number types.
 		CursorLoader loader = new CursorLoader(this,
 			Phone.CONTENT_URI,
-			new String[]{Phone._ID, Phone.DISPLAY_NAME, Phone.NUMBER,
-				Phone.TYPE},
+			new String[]{ Phone._ID, Phone.DISPLAY_NAME, Phone.NUMBER,
+				Phone.TYPE },
 			null, null, Phone.DISPLAY_NAME + " ASC");
 		Cursor phones = loader.loadInBackground();
 		CursorAdapter adapter = new
@@ -321,7 +323,7 @@ public class MessagesActivity extends Activity
 		super.onSaveInstanceState(outState);
 	}
 
-	public void sendSMS(String phoneNumber, String message)
+	public void sendSMS(String contactName, String phoneNumber, String message)
 	{
 		AlarmManager alarmMgr = (AlarmManager) getSystemService(
 			Context.ALARM_SERVICE);
@@ -331,6 +333,7 @@ public class MessagesActivity extends Activity
 
 		// Put information in intent.
 		intent.putExtra("time", time);
+        intent.putExtra("contactName", contactName);
 		intent.putExtra("phoneNumber", phoneNumber);
 		intent.putExtra("message", message);
 
