@@ -13,7 +13,7 @@ public class TimePickerFragment extends DialogFragment implements
 	TimePickerDialog.OnTimeSetListener
 {
 	private Calendar calendar;
-	private MessagesActivity activity;
+	private EditMessageActivity activity;
 
 	/**
 	 * Creates a new time picker dialog.
@@ -56,7 +56,7 @@ public class TimePickerFragment extends DialogFragment implements
 		activity.setSendTime(calendar);
 	}
 
-	public void setMessagesActivity(MessagesActivity activity)
+	public void setMessagesActivity(EditMessageActivity activity)
 	{
 		this.activity = activity;
 	}

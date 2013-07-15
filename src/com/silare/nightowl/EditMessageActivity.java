@@ -20,7 +20,8 @@ import java.util.Calendar;
 
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
 
-public class MessagesActivity extends Activity
+public class EditMessageActivity
+	extends Activity
 {
 	private AutoCompleteTextView phoneNumber;
 	private TextView dateSpinner;
@@ -28,7 +29,8 @@ public class MessagesActivity extends Activity
 	private EditText message;
 	private Button sendSMS;
 	private Calendar sendTime;
-    private String contactName;
+	private String contactName;
+
 
 	/**
 	 * Initializes the activity and its user interface when it starts.
@@ -67,7 +69,8 @@ public class MessagesActivity extends Activity
 		}
 
 		// Set up autocomplete functionality for the phone number field.
-		initializePhoneNumber();
+		phoneNumber = initializePhoneNumber((AutoCompleteTextView)
+			findViewById(R.id.phone_number));
 
 		// Initialize the message body field and the button for sending the
 		// delayed SMS message.
@@ -78,35 +81,43 @@ public class MessagesActivity extends Activity
 			@Override
 			public void onClick(View v)
 			{
-				sendSMS(contactName, phoneNumber.getText().toString(), message.getText()
-					.toString());
+				preparePendingMessage(contactName,
+					phoneNumber.getText().toString(),
+					message.getText().toString(), sendTime);
 			}
 		});
 
 		// Initialize the date spinner and time spinner.
-		initializeDateSpinner();
-		initializeTimeSpinner();
+		dateSpinner = initializeDateSpinner((TextView) findViewById(R.id
+			.date_spinner));
+		timeSpinner = initializeTimeSpinner((TextView) findViewById(R.id
+			.time_spinner));
 	}
+
 
 	/**
 	 * Initializes the phone number field to support autocomplete by contact
 	 * names. Clicking on a contact name inputs their phone number.
+	 *
+	 * @param phoneNumber   The AutoCompleteTextView retrieved from the XML.
+	 * @return Return an initialized copy of the AutoCompleteTextView provided.
 	 */
-	private void initializePhoneNumber()
+	private AutoCompleteTextView initializePhoneNumber(
+		final AutoCompleteTextView phoneNumber)
 	{
-		phoneNumber = (AutoCompleteTextView) findViewById(R.id.phone_number);
-
 		// Set up the contact names so that clicking on them automatically
 		// inputs their phone number.
-		phoneNumber.setOnItemClickListener(new AdapterView.OnItemClickListener()
+		phoneNumber.setOnItemClickListener(new AdapterView
+			.OnItemClickListener()
 		{
 			@Override
 			public void onItemClick(AdapterView<?> adapterView, View view,
-									int i, long l)
+			                        int i, long l)
 			{
 				Cursor cursor = (Cursor)
 					adapterView.getItemAtPosition(i);
-                contactName = cursor.getString(cursor.getColumnIndexOrThrow(Phone.DISPLAY_NAME));
+				contactName = cursor.getString(cursor.getColumnIndexOrThrow
+					(Phone.DISPLAY_NAME));
 				String number = cursor.getString(
 					cursor.getColumnIndexOrThrow(Phone.NUMBER));
 				phoneNumber.setText(number);
@@ -116,87 +127,89 @@ public class MessagesActivity extends Activity
 		// Set up a Cursor that will find all phone numbers stored in the
 		// user's contact list and obtain their display names, phone numbers,
 		// and phone number types.
-		CursorLoader loader = new CursorLoader(this,
+		CursorLoader loader = new CursorLoader(
+			this,
 			Phone.CONTENT_URI,
-			new String[]{ Phone._ID, Phone.DISPLAY_NAME, Phone.NUMBER,
-				Phone.TYPE },
+			new String[]{Phone._ID, Phone.DISPLAY_NAME, Phone.NUMBER,
+				Phone.TYPE},
 			null, null, Phone.DISPLAY_NAME + " ASC");
 		Cursor phones = loader.loadInBackground();
-		CursorAdapter adapter = new
-
-			SimpleCursorAdapter(this,
-				R.layout.view_contact, phones,
-				new String[]{Phone.DISPLAY_NAME, Phone.NUMBER, Phone.TYPE},
-				new int[]{R.id.phone_contact, R.id.phone_number, R.id.phone_type},
-				0)
+		CursorAdapter adapter = new SimpleCursorAdapter(
+			this,
+			R.layout.view_contact,
+			phones,
+			new String[]{Phone.DISPLAY_NAME, Phone.NUMBER, Phone.TYPE},
+			new int[]{R.id.phone_contact, R.id.phone_number,
+				R.id.phone_type},
+			0)
+		{
+			public void bindView(View view, Context context, Cursor cursor)
 			{
-				public void bindView(View view, Context context, Cursor cursor)
+				// Get the cursor indices.
+				int nameIndex =
+					cursor.getColumnIndexOrThrow(Phone.DISPLAY_NAME);
+				int typeIndex = cursor.getColumnIndex(Phone.TYPE);
+				int numberIndex =
+					cursor.getColumnIndex(Phone.NUMBER);
+
+				// Set up the cursor values.
+				String contactName = cursor.getString(nameIndex);
+				int numberType = cursor.getInt(typeIndex);
+				String phoneNumber = cursor.getString(numberIndex);
+
+				// Set up the TextViews to have their display name,
+				// phone number, and phone number type.
+				TextView name = (TextView) view.findViewById(
+					R.id.phone_contact);
+				TextView number = (TextView) view.findViewById(
+					R.id.phone_number);
+				TextView type = (TextView) view.findViewById(
+					R.id.phone_type);
+
+				name.setText(contactName);
+				String typeStr;
+
+				// TODO HashMap here to make this more concise? ;_;
+				if (numberType == Phone.TYPE_HOME)
 				{
-					// Get the cursor indices.
-					int nameIndex = cursor.getColumnIndexOrThrow(
-						Phone.DISPLAY_NAME);
-					int typeIndex = cursor.getColumnIndex(
-						Phone.TYPE);
-					int numberIndex = cursor.getColumnIndex(
-						Phone.NUMBER);
-
-					// Set up the cursor values.
-					String contactName = cursor.getString(nameIndex);
-					int numberType = cursor.getInt(typeIndex);
-					String phoneNumber = cursor.getString(numberIndex);
-
-					// Set up the TextViews to have their display name,
-					// phone number, and phone number type.
-					TextView name = (TextView) view.findViewById(
-						R.id.phone_contact);
-					TextView number = (TextView) view.findViewById(
-						R.id.phone_number);
-					TextView type = (TextView) view.findViewById(
-						R.id.phone_type);
-
-					name.setText(contactName);
-					String typeStr = "";
-
-					if (numberType == Phone.TYPE_HOME)
-					{
-						typeStr = "Home";
-					}
-					else if (numberType == Phone.TYPE_MOBILE)
-					{
-						typeStr = "Mobile";
-					}
-					else if (numberType == Phone.TYPE_WORK)
-					{
-						typeStr = "Work";
-					}
-					else if (numberType == Phone.TYPE_FAX_HOME)
-					{
-						typeStr = "Home Fax";
-					}
-					else if (numberType == Phone.TYPE_FAX_WORK)
-					{
-						typeStr = "Work Fax";
-					}
-					else if (numberType == Phone.TYPE_MAIN)
-					{
-						typeStr = "Main";
-					}
-					else if (numberType == Phone.TYPE_OTHER)
-					{
-						typeStr = "Other";
-					}
-					else if (numberType == Phone.TYPE_PAGER)
-					{
-						typeStr = "Pager";
-					}
-					else
-					{
-						typeStr = "Other";
-					}
-					type.setText(typeStr.toUpperCase());
-					number.setText(phoneNumber);
+					typeStr = "Home";
 				}
-			};
+				else if (numberType == Phone.TYPE_MOBILE)
+				{
+					typeStr = "Mobile";
+				}
+				else if (numberType == Phone.TYPE_WORK)
+				{
+					typeStr = "Work";
+				}
+				else if (numberType == Phone.TYPE_FAX_HOME)
+				{
+					typeStr = "Home Fax";
+				}
+				else if (numberType == Phone.TYPE_FAX_WORK)
+				{
+					typeStr = "Work Fax";
+				}
+				else if (numberType == Phone.TYPE_MAIN)
+				{
+					typeStr = "Main";
+				}
+				else if (numberType == Phone.TYPE_OTHER)
+				{
+					typeStr = "Other";
+				}
+				else if (numberType == Phone.TYPE_PAGER)
+				{
+					typeStr = "Pager";
+				}
+				else
+				{
+					typeStr = "Other";
+				}
+				type.setText(typeStr.toUpperCase());
+				number.setText(phoneNumber);
+			}
+		};
 
 		adapter.setFilterQueryProvider(new FilterQueryProvider()
 		{
@@ -210,14 +223,19 @@ public class MessagesActivity extends Activity
 			}
 		});
 		phoneNumber.setAdapter(adapter);
+
+		return phoneNumber;
 	}
+
 
 	/**
 	 * Initializes the date spinner to call a DatePickerDialog on touch.
+	 *
+	 * @param dateSpinner   The TextView retrieved from the XML.
+	 * @return Return an initialized copy of the TextView provided.
 	 */
-	private void initializeDateSpinner()
+	private TextView initializeDateSpinner(TextView dateSpinner)
 	{
-		dateSpinner = (TextView) findViewById(R.id.date_spinner);
 		dateSpinner.setText(DatePickerFragment.calendarDateString(sendTime));
 
 		View.OnTouchListener dateSpinnerOnTouch = new View.OnTouchListener()
@@ -251,14 +269,19 @@ public class MessagesActivity extends Activity
 
 		dateSpinner.setOnTouchListener(dateSpinnerOnTouch);
 		dateSpinner.setOnKeyListener(dateSpinnerOnKey);
+
+		return dateSpinner;
 	}
+
 
 	/**
 	 * Initializes the time spinner to call a TimePickerDialog on touch.
+	 *
+	 * @param timeSpinner   The TextView retrieved from the XML.
+	 * @return Return an initialized copy of the TextView provided.
 	 */
-	private void initializeTimeSpinner()
+	private TextView initializeTimeSpinner(TextView timeSpinner)
 	{
-		timeSpinner = (TextView) findViewById(R.id.time_spinner);
 		timeSpinner.setText(TimePickerFragment.calendarTimeString(sendTime));
 
 		View.OnTouchListener timeSpinnerOnTouch = new View.OnTouchListener()
@@ -292,7 +315,10 @@ public class MessagesActivity extends Activity
 
 		timeSpinner.setOnTouchListener(timeSpinnerOnTouch);
 		timeSpinner.setOnKeyListener(timeSpinnerOnKey);
+
+		return timeSpinner;
 	}
+
 
 	/**
 	 * Initializes the contents of the Activity's standard options menu.
@@ -303,10 +329,12 @@ public class MessagesActivity extends Activity
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{
-		// Inflate the menu; this adds items to the action bar if it is present.
+		// Inflate the menu; this adds items to the action bar if it is
+		// present.
 		getMenuInflater().inflate(R.menu.messages, menu);
 		return true;
 	}
+
 
 	/**
 	 * Called to retrieve the send time from an activity before being killed
@@ -323,30 +351,42 @@ public class MessagesActivity extends Activity
 		super.onSaveInstanceState(outState);
 	}
 
-	public void sendSMS(String contactName, String phoneNumber, String message)
+
+	/**
+	 * Prepares a pending intent to contain a pending SMS message with a given
+	 * name and phone number to be sent at a given time.
+	 *
+	 * @param contactName The name of the recipient.
+	 * @param phoneNumber The phone number of the recipient.
+	 * @param messageBody The SMS message body.
+	 * @param sendTime    The time at which the message will be sent.
+	 */
+	public void preparePendingMessage(String contactName, String phoneNumber,
+	                                  String messageBody, Calendar sendTime)
 	{
 		AlarmManager alarmMgr = (AlarmManager) getSystemService(
 			Context.ALARM_SERVICE);
-		Calendar time = sendTime;
-		Intent intent = new Intent(null, Uri.parse("timer:" + time
-			+ phoneNumber + message), this, SMSSendReceiver.class);
+		Intent intent = new Intent(null, Uri.parse("timer:" + sendTime
+			+ phoneNumber + messageBody), this, SMSSendReceiver.class);
 
 		// Put information in intent.
-		intent.putExtra("time", time);
-        intent.putExtra("contactName", contactName);
-		intent.putExtra("phoneNumber", phoneNumber);
-		intent.putExtra("message", message);
+		PendingMessage pendingMessage = new PendingMessage(contactName,
+			phoneNumber, messageBody, sendTime);
+		intent.putExtra("pendingMessage", pendingMessage);
 
+		// Set up the pending intent appropriately so that the broadcast
+		// receiver can react when it is time to send the SMS message.
 		PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0,
 			intent, Intent.FLAG_ACTIVITY_NEW_TASK);
-		alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(),
+		alarmMgr.set(AlarmManager.RTC_WAKEUP, sendTime.getTimeInMillis(),
 			pendingIntent);
 		Log.d("SendSMS",
-			"[" + DatePickerFragment.calendarDateString(time) + " :: "
-				+ TimePickerFragment.calendarTimeString(time) + " ("
-				+ time.get(Calendar.SECOND) + ")]" + " " + phoneNumber
-				+ " << \"" + message + "\"");
+			"[" + DatePickerFragment.calendarDateString(sendTime) + " :: "
+				+ TimePickerFragment.calendarTimeString(sendTime) + " ("
+				+ sendTime.get(Calendar.SECOND) + ")]" + " " + phoneNumber
+				+ " << \"" + messageBody + "\"");
 	}
+
 
 	/**
 	 * Calls a DatePickerDialog to prompt the user for a new date to send the
@@ -354,11 +394,12 @@ public class MessagesActivity extends Activity
 	 */
 	public void showDatePickerDialog()
 	{
-		DatePickerFragment newFragment = new DatePickerFragment();
-		newFragment.setMessagesActivity(this);
-		newFragment.setCalendar(sendTime);
-		newFragment.show(getFragmentManager(), "Date");
+		DatePickerFragment datePickerFragment = new DatePickerFragment();
+		datePickerFragment.setMessagesActivity(this);
+		datePickerFragment.setCalendar(sendTime);
+		datePickerFragment.show(getFragmentManager(), "Date");
 	}
+
 
 	/**
 	 * Calls a TimePickerDialog to prompt the user for a new time to send the
@@ -366,11 +407,12 @@ public class MessagesActivity extends Activity
 	 */
 	public void showTimePickerDialog()
 	{
-		TimePickerFragment newFragment = new TimePickerFragment();
-		newFragment.setMessagesActivity(this);
-		newFragment.setCalendar(sendTime);
-		newFragment.show(getFragmentManager(), "Time");
+		TimePickerFragment timePickerFragment = new TimePickerFragment();
+		timePickerFragment.setMessagesActivity(this);
+		timePickerFragment.setCalendar(sendTime);
+		timePickerFragment.show(getFragmentManager(), "Time");
 	}
+
 
 	/**
 	 * Sets the send time for the SMS message to the new one, based on user

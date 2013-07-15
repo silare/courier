@@ -12,7 +12,7 @@ public class DatePickerFragment extends DialogFragment implements
 	DatePickerDialog.OnDateSetListener
 {
 	private Calendar calendar;
-	private MessagesActivity activity;
+	private EditMessageActivity activity;
 
 	/**
 	 * Creates a new date picker dialog.
@@ -55,7 +55,7 @@ public class DatePickerFragment extends DialogFragment implements
 		activity.setSendTime(calendar);
 	}
 
-	public void setMessagesActivity(MessagesActivity activity)
+	public void setMessagesActivity(EditMessageActivity activity)
 	{
 		this.activity = activity;
 	}
