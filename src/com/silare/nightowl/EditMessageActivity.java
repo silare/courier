@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.*;
 
 import java.util.Calendar;
+import java.util.HashMap;
 
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
 
@@ -169,43 +170,19 @@ public class EditMessageActivity
 				name.setText(contactName);
 				String typeStr;
 
-				// TODO HashMap here to make this more concise? ;_;
-				if (numberType == Phone.TYPE_HOME)
-				{
-					typeStr = "Home";
-				}
-				else if (numberType == Phone.TYPE_MOBILE)
-				{
-					typeStr = "Mobile";
-				}
-				else if (numberType == Phone.TYPE_WORK)
-				{
-					typeStr = "Work";
-				}
-				else if (numberType == Phone.TYPE_FAX_HOME)
-				{
-					typeStr = "Home Fax";
-				}
-				else if (numberType == Phone.TYPE_FAX_WORK)
-				{
-					typeStr = "Work Fax";
-				}
-				else if (numberType == Phone.TYPE_MAIN)
-				{
-					typeStr = "Main";
-				}
-				else if (numberType == Phone.TYPE_OTHER)
-				{
-					typeStr = "Other";
-				}
-				else if (numberType == Phone.TYPE_PAGER)
-				{
-					typeStr = "Pager";
-				}
-				else
-				{
-					typeStr = "Other";
-				}
+				final HashMap<Integer, String> typeStrs = new HashMap<Integer,
+					String>();
+				typeStrs.put(Phone.TYPE_MOBILE, "Mobile");
+				typeStrs.put(Phone.TYPE_WORK, "Work");
+				typeStrs.put(Phone.TYPE_HOME, "Home");
+				typeStrs.put(Phone.TYPE_MAIN, "Main");
+				typeStrs.put(Phone.TYPE_FAX_WORK, "Work Fax");
+				typeStrs.put(Phone.TYPE_FAX_HOME, "Home Fax");
+				typeStrs.put(Phone.TYPE_PAGER, "Pager");
+				typeStrs.put(Phone.TYPE_OTHER, "Other");
+				typeStr = (typeStrs.containsKey(numberType))
+						? typeStrs.get(numberType)
+				        : "Other";
 				type.setText(typeStr.toUpperCase());
 				number.setText(phoneNumber);
 			}
